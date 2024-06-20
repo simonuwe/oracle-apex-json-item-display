@@ -1,2 +1,2 @@
-# oracle-apex-json-item-display
-Oracle-APEX-Plugin for displaying and formatted JSON-data
+# oracle-apex-json-item
+Oracle-APEX-Plugin for displaying formatted JSON-data

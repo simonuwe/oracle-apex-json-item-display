@@ -1,0 +1,33 @@
+{
+    "name" :        "JSON-Region",
+    "version" :     "0.0.1",
+    "description" : "Format JSON-data in lists based on a description in a JSON-schema. The schema can vary from ro to row",
+    "keywords" :    ["JSON", "JSON-schema", "dynamic column formatting"],
+    "homepage" :    "https://github.com/simonuwe/oracle-apex-json-item/",
+    "bugs" : {
+      "url" :       "https://github.com/simonuwe/oracle-apex-json-item-display/issues",
+      "email" :     "uwe.simon@magenta.de"
+    },
+    "license" :     "Apache 2.0",
+    "commercial" :  "No",
+    "author" : {
+      "name" :      "Uwe Simon",
+      "email" :     "uwe.simon@magenta.de"
+    },
+    "repository" : {
+      "type" :      "git",
+      "url" :       "https://github.com/simonuwe/oracle-apex-json-item-display.git"
+    },
+    "oracle" : {
+      "versions" :  ["19.0.0", "23.0.0"],
+      "apex" : {
+        "versions" :       ["20.02", "21.01", "21.2", "22.01", "22.02", "23.1", "23.02", "24.1"],
+        "plugin" : {
+          "internalName" : "JSON_ITEM.UWESIMON.SELFHOST.EU",
+          "type" :         "region",
+          "demo" :         "https://tlodfjxbrej9i6r-uwe01.adb.eu-frankfurt-1.oraclecloudapps.com/ords/r/uwe/json-region-demo/home",
+          "previewImage" : "https://raw.githubusercontent.com/simonuwe/oracle-apex-json-item/main/docu/demo.gif"
+        }
+      }
+    }
+  }
