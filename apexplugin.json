@@ -1,7 +1,7 @@
 {
     "name" :        "JSON-Region",
-    "version" :     "0.0.1",
-    "description" : "Format JSON-data in lists based on a description in a JSON-schema. The schema can vary from ro to row",
+    "version" :     "0.1.0",
+    "description" : "Displays easy readable formatted JSON-data in interactive grids or on a page. The format for the JSON is based on a description in a JSON-schema. The schema can vary from row to row depending on the JSON-schema. The JSON-attributes can be addressed via JSON-path like #$.address.city#",
     "keywords" :    ["JSON", "JSON-schema", "dynamic column formatting"],
     "homepage" :    "https://github.com/simonuwe/oracle-apex-json-item/",
     "bugs" : {
@@ -23,10 +23,10 @@
       "apex" : {
         "versions" :       ["20.02", "21.01", "21.2", "22.01", "22.02", "23.1", "23.02", "24.1"],
         "plugin" : {
-          "internalName" : "JSON_ITEM.UWESIMON.SELFHOST.EU",
-          "type" :         "region",
+          "internalName" : "JSON_ITEM_DISPLAY.UWESIMON.SELFHOST.EU",
+          "type" :         "item",
           "demo" :         "https://tlodfjxbrej9i6r-uwe01.adb.eu-frankfurt-1.oraclecloudapps.com/ords/r/uwe/json-region-demo/home",
-          "previewImage" : "https://raw.githubusercontent.com/simonuwe/oracle-apex-json-item/main/docu/demo.gif"
+          "previewImage" : "https://raw.githubusercontent.com/simonuwe/oracle-apex-json-item-display/main/docu/demo.png"
         }
       }
     }
