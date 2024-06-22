@@ -124,13 +124,12 @@ function initJsonItemDisplayGrid(pColumnName, pOptions){
 
       console.log('view', l_view);
       // get model columnname from grid columnname
-      for (const [key, data] of Object.entries(l_view.modelColumns)) {
-        if(pColumnName == data.elementId){
-          l_data_column = key;
-        }
-      };
+      // get model name from elementid
+      l_data_column = Object.keys(l_view.modelColumns).find(key => l_view.modelColumns[key].elementId === pColumnName);
 
-      l_view.modelColumns[l_data_column].dependsOn = []; 
+      l_model._calculatedFields = [l_data_column];
+
+      l_view.modelColumns[l_data_column].dependsOn = [pOptions.schemaitem, pOptions.dataitem]; 
       l_view.modelColumns[l_data_column].virtual   = true;
       l_view.modelColumns[l_data_column].readonly  = true;
       // l_view.modelColumns[l_data_column].volatile  = true;
@@ -140,15 +139,11 @@ function initJsonItemDisplayGrid(pColumnName, pOptions){
           let l_value = formatValue(l_display, pOptions.list, l_json);
           return(l_value);
       };
+
       apex.region(l_region).refresh();
       console.log('<<interactivegridviewmodelcreate', l_data_column, l_view.modelColumns[l_data_column]);
     });
 
-//  apex.item.create(pColumnName, {item_type: 'hidden', nullValue: 'xxxx', isChanged: function() { console.log('isChanged'); return false; }});
-
-//  pOptions =convertJsonParameter(pOptions);
-//  pOptions.schema = convertJsonParameter(pOptions.schema||"{}");
-//  pOptions = JSON.parse(pOptions);
     pOptions.schema = pOptions.schema||{};
     pOptions.schema.apex = pOptions.schema.apex ||{};
   }else {
