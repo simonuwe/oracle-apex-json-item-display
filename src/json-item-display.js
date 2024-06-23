@@ -11,23 +11,25 @@
  * the format contains one or more JSON-path enclosed by #
  * Example "#$.lastname#, #$.firstname#" returns "Simon, Uwe"
 */
-function formatValue(pDisplay, pList, pValue){
-  // console.log('>>formatValue', pDisplay, pList, pValue);
-  pDisplay = JSON.parse(pDisplay);
-  pValue   = JSON.parse(pValue);
+function formatValue(pDisplay, pList, pFormat, pValue){
+  console.log('>>formatValue', pDisplay, pList, pFormat, pValue);
+  pDisplay = pDisplay?JSON.parse(pDisplay):null;
+  pValue   = pValue?JSON.parse(pValue):null;
+  pFormat  = pFormat||null;
   let l_result = null;
-  if(typeof pDisplay === 'object' && typeof pValue ==='object'){
-    let l_format = null;
-    if(pDisplay) {  // when pDisplay is an object, pList is the key for the format
-      pDisplay.apex = pDisplay.apex ||{};
+  if((pFormat || typeof pDisplay === 'object') && typeof pValue ==='object'){
+    if(!pFormat) {  // when pDisplay is an object, pList is the key for the format
+      pDisplay      = pDisplay || {};
+      pDisplay.apex = pDisplay.apex || {};
       pDisplay      = pDisplay.apex.display || {};
-      l_format      = pDisplay[pList]||'';
-    } else {  // the format is pList
-      l_format = pList;
+      pFormat       = pDisplay[pList]||'';
     }
+
+    pFormat = '' + pFormat;
+
     // console.log('formatValue: format', l_format);
-    l_result  = '' + l_format;
-    let l_fields  = l_format.match(/#[^#]+#/g) || [];
+    l_result  = '' + pFormat;
+    let l_fields  = pFormat.match(/#[^#]+#/g) || [];
     for(const l_field of l_fields){
       let l_jsonpath = l_field.replaceAll('#', '');
       let l_value = JSONPath.JSONPath({path: l_jsonpath, json: pValue}) || [];
@@ -37,7 +39,7 @@ function formatValue(pDisplay, pList, pValue){
     apex.debug.error('JSON-item-display: configuration error: expected JSONs objects got schema-item:', (typeof pDisplay).toUpperCase(), 'data-item:', (typeof pValue).toUpperCase());
     l_result = 'configuration error';
   }
-  // console.log('<<formatValue', l_result);
+  console.log('<<formatValue', l_result);
   return (l_result);
 }
     /*
@@ -83,7 +85,7 @@ function initJsonItemDisplay(pItemName, pOptions){
   let l_value = apex.item(pOptions.dataitem).getValue();
 //  l_value = JSON.parse(l_value);
 
-  l_value = (formatValue(pOptions.schema, pOptions.list, l_value))
+  l_value = (formatValue(pOptions.schema, pOptions.list, pOptions.format, l_value))
 
   let l_html = apex.util.applyTemplate(`
 <div class="t-Form-itemWrapper">
@@ -106,7 +108,7 @@ function initJsonItemDisplay(pItemName, pOptions){
     item_type: "json_item_display",
     displayValueFor:function(value) {
       console.log('DISPLAY:', value);
-      return formatValue(pOptions.schema, pOptions.list, '"' + (value ||'{}') + '"');
+      return formatValue(pOptions.schema, pOptions.list, pOptions.format, '"' + (value ||'{}') + '"');
     }
   });
   console.log('<<initJsonItemDisplay');
@@ -141,16 +143,23 @@ function initJsonItemDisplayGrid(pColumnName, pOptions){
         // calculated column must not be one of the dependent columns, otherwise endless loop
         l_model._calculatedFields = [l_data_column];
 
-        l_view.modelColumns[l_data_column].dependsOn = [pOptions.schemaitem, pOptions.dataitem]; 
+        l_view.modelColumns[l_data_column].dependsOn = [pOptions.dataitem]; 
+        if(pOptions.schemaitem){
+          l_view.modelColumns[l_data_column].dependsOn.push(pOptions.schemaitem);
+        }
+
         l_view.modelColumns[l_data_column].virtual   = true;
         l_view.modelColumns[l_data_column].readonly  = true;
         // l_view.modelColumns[l_data_column].volatile  = true;
         l_view.modelColumns[l_data_column].calcValue = function(_argsArray, model, record){
 //          let l_display = JSON.parse(model.getValue(record, pOptions.schemaitem));
 //          let l_json = JSON.parse(model.getValue(record, pOptions.dataitem));
-          let l_display = model.getValue(record, pOptions.schemaitem);
+          let l_display = null;
+          if(pOptions.schemaitem) {
+            l_display = model.getValue(record, pOptions.schemaitem);
+          }
           let l_json    = model.getValue(record, pOptions.dataitem);
-          let l_value   = formatValue(l_display, pOptions.list, l_json);
+          let l_value   = formatValue(l_display, pOptions.list, pOptions.format, l_json);
           return(l_value);
         };
 
