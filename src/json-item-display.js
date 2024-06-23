@@ -11,25 +11,33 @@
  * the format contains one or more JSON-path enclosed by #
  * Example "#$.lastname#, #$.firstname#" returns "Simon, Uwe"
 */
-function formatValue(p_display, pList, pValue){
-  console.log('>>formatValue', p_display, pList, pValue);
- // p_display =convertJsonParameter(p_display);
- // pValue =convertJsonParameter(pValue);  
-  console.log('format value', p_display, pList, pValue);
-  p_display = p_display ||{};
-  p_display.apex = p_display.apex ||{};
-  p_display = p_display.apex.display;
-  p_display = p_display||{};
-  let l_format = p_display[pList]||'';
-  let l_result = l_format;
-  let l_fields = l_format.match(/#[^#]+#/g) || [];
-  for(const l_field of l_fields){
+function formatValue(pDisplay, pList, pValue){
+  // console.log('>>formatValue', pDisplay, pList, pValue);
+  pDisplay = JSON.parse(pDisplay);
+  pValue   = JSON.parse(pValue);
+  let l_result = null;
+  if(typeof pDisplay === 'object' && typeof pValue ==='object'){
+    let l_format = null;
+    if(pDisplay) {  // when pDisplay is an object, pList is the key for the format
+      pDisplay.apex = pDisplay.apex ||{};
+      pDisplay      = pDisplay.apex.display || {};
+      l_format      = pDisplay[pList]||'';
+    } else {  // the format is pList
+      l_format = pList;
+    }
+    // console.log('formatValue: format', l_format);
+    l_result  = '' + l_format;
+    let l_fields  = l_format.match(/#[^#]+#/g) || [];
+    for(const l_field of l_fields){
       let l_jsonpath = l_field.replaceAll('#', '');
       let l_value = JSONPath.JSONPath({path: l_jsonpath, json: pValue}) || [];
       l_result = l_result.replaceAll(l_field, l_value[0]?l_value[0]:'-');
+    }
+  } else {
+    apex.debug.error('JSON-item-display: configuration error: expected JSONs objects got schema-item:', (typeof pDisplay).toUpperCase(), 'data-item:', (typeof pValue).toUpperCase());
+    l_result = 'configuration error';
   }
-
-  console.log('<<formatValue', l_result);
+  // console.log('<<formatValue', l_result);
   return (l_result);
 }
     /*
@@ -66,14 +74,16 @@ function convertJsonParameter(p_str){
     /*
      * initialize the JSON-Item-Display plugin, call form inside PL/SQL when plugin is initialized
      */
-function initJsonItemDisplay(pItenName, pOptions){
-  console.info('>>initJsonItemDisplay', pItenName,  pOptions);
+function initJsonItemDisplay(pItemName, pOptions){
+  console.info('>>initJsonItemDisplay', pItemName,  pOptions);
   // pOptions.schema is quotted
-  pOptions.schema =convertJsonParameter(pOptions.schema||'{}');
-  pOptions.schema.apex = pOptions.schema.apex ||{};
-  console.log('pOptions', pOptions);
+//  pOptions.schema =convertJsonParameter(pOptions.schema||'{}');
+//  pOptions.schema.apex = pOptions.schema.apex ||{};
+//  console.log('pOptions', pOptions);
   let l_value = apex.item(pOptions.dataitem).getValue();
-  l_value = JSON.parse(l_value);
+//  l_value = JSON.parse(l_value);
+
+  l_value = (formatValue(pOptions.schema, pOptions.list, l_value))
 
   let l_html = apex.util.applyTemplate(`
 <div class="t-Form-itemWrapper">
@@ -86,13 +96,13 @@ function initJsonItemDisplay(pItenName, pOptions){
 `,
                                                 {
                                                     placeholders: {
-                                                      "ID":    pItenName,
-                                                      "VALUE": (formatValue(pOptions.schema, pOptions.list, l_value))
+                                                      "ID":    pItemName,
+                                                      "VALUE": l_value
                                                    }
                                                 });
-  $('#' + pItenName + '_CONTAINER .t-Form-itemWrapper').html(l_html);
+  $('#' + pItemName + '_CONTAINER .t-Form-itemWrapper').html(l_html);
 
-  apex.item.create(pItenName, {
+  apex.item.create(pItemName, {
     item_type: "json_item_display",
     displayValueFor:function(value) {
       console.log('DISPLAY:', value);
@@ -127,20 +137,27 @@ function initJsonItemDisplayGrid(pColumnName, pOptions){
       // get model name from elementid
       l_data_column = Object.keys(l_view.modelColumns).find(key => l_view.modelColumns[key].elementId === pColumnName);
 
-      l_model._calculatedFields = [l_data_column];
+      if(![pOptions.schemaitem, pOptions.dataitem].includes(l_data_column)){ 
+        // calculated column must not be one of the dependent columns, otherwise endless loop
+        l_model._calculatedFields = [l_data_column];
 
-      l_view.modelColumns[l_data_column].dependsOn = [pOptions.schemaitem, pOptions.dataitem]; 
-      l_view.modelColumns[l_data_column].virtual   = true;
-      l_view.modelColumns[l_data_column].readonly  = true;
-      // l_view.modelColumns[l_data_column].volatile  = true;
-      l_view.modelColumns[l_data_column].calcValue = function(_argsArray, model, record){
-          let l_display = JSON.parse(model.getValue(record, pOptions.schemaitem));
-          let l_json = JSON.parse(model.getValue(record, pOptions.dataitem));
-          let l_value = formatValue(l_display, pOptions.list, l_json);
+        l_view.modelColumns[l_data_column].dependsOn = [pOptions.schemaitem, pOptions.dataitem]; 
+        l_view.modelColumns[l_data_column].virtual   = true;
+        l_view.modelColumns[l_data_column].readonly  = true;
+        // l_view.modelColumns[l_data_column].volatile  = true;
+        l_view.modelColumns[l_data_column].calcValue = function(_argsArray, model, record){
+//          let l_display = JSON.parse(model.getValue(record, pOptions.schemaitem));
+//          let l_json = JSON.parse(model.getValue(record, pOptions.dataitem));
+          let l_display = model.getValue(record, pOptions.schemaitem);
+          let l_json    = model.getValue(record, pOptions.dataitem);
+          let l_value   = formatValue(l_display, pOptions.list, l_json);
           return(l_value);
-      };
+        };
 
-      apex.region(l_region).refresh();
+        apex.region(l_region).refresh();
+      } else {
+        apex.debug.error('JSON-item-display: configuration error: target ', l_data_column, 'must not be any of', pOptions.schemaitem, pOptions.dataitem);
+      }
       console.log('<<interactivegridviewmodelcreate', l_data_column, l_view.modelColumns[l_data_column]);
     });
 

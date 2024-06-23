@@ -12,7 +12,7 @@ This plugin can be optionally used/configured together with the JSON-Region-plug
 ![screenshots](docu/demo.png)
 
 
-## combined JSON-schema with JSON-region-plugin**
+## combined JSON-schema with JSON-region-plugin
 
 A JSON-schema describing a server with a "default" output-format and a "detail" output-format. So a single JSON-schema definition can be used for displaying and editing the JSON-data.
 
@@ -41,7 +41,7 @@ A JSON-schema describing a server with a "default" output-format and a "detail" 
 }
 ```
 
-## standalone JSON-schema for JSON-item-display-plugin**
+## standalone JSON-schema for JSON-item-display-plugin
 
 When only the JSON-item-display plugin is used the JSON-schema definition  is optional.
 
