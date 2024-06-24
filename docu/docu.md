@@ -157,7 +157,11 @@ containing a column **Fomatted Data**
 
 #### On a Page
 
-1. The configuration is similar to the interactive-grid, but there is the additional option **SQL-query for the source of the JSON-schema. The SQL-query must return a single column and a single row containing the JSON-schema .
+1. Add a **page-item** to the page
+
+![config](config-09.png)
+
+2. The configuration is similar to the interactive-grid, but there is the additional option **SQL-query for the source of the JSON-schema. The SQL-query must return a single column and a single row containing the JSON-schema .
 
 ![config](config-08.png)
 
