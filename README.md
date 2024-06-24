@@ -55,3 +55,5 @@ When only the JSON-item-display plugin is used the JSON-schema definition  is op
   }
 }
 ```
+
+Ther docu fir the JSON-item-display-plugin could be found [here](docu/docu.md)

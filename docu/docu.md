@@ -122,36 +122,47 @@ When configuring the JSON-item-display-plugin, the output format can be defined 
 #### In an Interactive-Grid
 
 1. Configure the Datasource for the interactive-grid with a coulmn containing the JSON-schema of the data-column (here **object_schema**)
+
 ![config](config-01.png)
 
 2. Add a Column the the report
+
 ![config](config-02.png)
 
 3. Set Column-name and Heading
+
 ![config](config-03.png)
 
 4. Set the Source of the column to "none".
+
 ![config](config-05.png)
 
 4. Configure the **Data Item** (column containing the JSON-data) and the **Schema Item** (Column contasining the JSON-schema) and the **list** (key in **apex.display** of the JSON-schema
+
 ![config](config-04.png)
 
 6. Alternative use a fixed output-format for all rows of the interactive-grid
+
 ![config](config-06.png)
 
 1. Alternative use a fixed JSON-schema containing the output-format, which is then used for all rows of the interactive-grid (here **default**)
+
 ![config](config-07.png)
 
+Now the interactive Grid could be used and should display a report similar to 
 
-Now the interactive Grid could be used and should display a report similar to ![config](config-10.png)
+![config](config-10.png)
+
 containing a column **Fomatted Data**
 
 #### On a Page
 
 1. The configuration is similar to the interactive-grid, but there is the additional option **SQL-query for the source of the JSON-schema. The SQL-query must return a single column and a single row containing the JSON-schema .
+
 ![config](config-08.png)
 
 2. Output on a page
+
 ![config](config-11.png)
 
 
