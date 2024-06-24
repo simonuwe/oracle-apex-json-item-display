@@ -71,6 +71,7 @@ PROCEDURE render_json_item_display(
   l_schema_column p_item.attribute_03%TYPE := p_item.attribute_03;                            -- The column with JSON-schema  
   l_schema        p_item.attribute_04%TYPE := p_item.attribute_04;                            -- The fixed JSON-schema
   l_query         p_item.attribute_05%TYPE := p_item.attribute_05;                            -- The SQL-query to retrieve the JSON-schema
+  l_format        p_item.attribute_07%TYPE := p_item.attribute_07;                            -- A fixed optput-format
 BEGIN
   BEGIN
     APEX_PLUGIN_UTIL.DEBUG_PAGE_ITEM(p_plugin, p_item, p_param.value, p_param.is_readonly, p_param.is_printer_friendly);
@@ -109,6 +110,7 @@ BEGIN
           apex_javascript.add_attribute('queryitems', l_queryitems) ||
           apex_javascript.add_attribute('schemaitem', l_schema_column) || 
           apex_javascript.add_attribute('dataitem',   l_data_column) || 
+          apex_javascript.add_attribute('format',     l_format) || 
           apex_javascript.add_attribute('list',       l_list) || 
           apex_javascript.add_attribute('schema',     l_schema, false,false) ||
       '}'||
