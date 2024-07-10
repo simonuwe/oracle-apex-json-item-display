@@ -11,25 +11,31 @@
  * the format contains one or more JSON-path enclosed by #
  * Example "#$.lastname#, #$.firstname#" returns "Simon, Uwe"
 */
-function formatValue(pDisplay, pList, pFormat, pValue){
-  console.log('>>formatValue', pDisplay, pList, pFormat, pValue);
-  pDisplay = pDisplay?JSON.parse(pDisplay):null;
+function formatValue(pDisplay, pJSON, pList, pValue){
+  console.log('>>formatValue', pDisplay, pJSON, pList, pValue);
   pValue   = pValue?JSON.parse(pValue):null;
-  pFormat  = pFormat||null;
+
+  let l_format  = null;
+
+  if(pJSON && pDisplay){ // pDisplay is a JSON-schema, so parse and extract format
+    pDisplay      = JSON.parse(pDisplay);
+    pDisplay      = pDisplay || {};
+    pDisplay.apex = pDisplay.apex || {};
+    pDisplay      = pDisplay.apex.display || {};
+    l_format      = pDisplay[pList]||'';    
+  } else { // pDisplay contains the format-string
+    l_format = pDisplay;
+  }
+
+  console.log('formatValue:', l_format);
+
   let l_result = null;
-  if((pFormat || typeof pDisplay === 'object') && typeof pValue ==='object'){
-    if(!pFormat) {  // when pDisplay is an object, pList is the key for the format
-      pDisplay      = pDisplay || {};
-      pDisplay.apex = pDisplay.apex || {};
-      pDisplay      = pDisplay.apex.display || {};
-      pFormat       = pDisplay[pList]||'';
-    }
+  if(typeof pValue ==='object'){ // a value, so format the value
+    l_format = '' + l_format;  // make sure l_format is a string;
 
-    pFormat = '' + pFormat;
-
-    // console.log('formatValue: format', l_format);
-    l_result  = '' + pFormat;
-    let l_fields  = pFormat.match(/#[^#]+#/g) || [];
+    console.log('formatValue: uses format', l_format);
+    l_result  = '' + l_format;
+    let l_fields  = l_format.match(/#[^#]+#/g) || [];
     for(const l_field of l_fields){
       let l_jsonpath = l_field.replaceAll('#', '');
       let l_value = JSONPath.JSONPath({path: l_jsonpath, json: pValue}) || [];
@@ -42,50 +48,21 @@ function formatValue(pDisplay, pList, pFormat, pValue){
   console.log('<<formatValue', l_result);
   return (l_result);
 }
+
+
     /*
-     * convert quoted JSON string like '\"id\": \"abc\u000adef\"' into object
-     */
-function convertJsonParameter(p_str){
-  let l_obj = undefined;
-  let l_str = "";
-  console.log('>>convert', p_str);
-  try{
-        // exclose with " so 2 parses will unquote all quoted characters
-    if( typeof p_str == 'string'){
-      l_str = JSON.parse(p_str);
-//      l_str = JSON.parse('"' + p_str + '"');
-    } else {
-      l_str = p_str;
-    }
-    if( typeof l_str == 'string'){
-      if(l_str.length>0){
-        l_obj = JSON.parse(l_str);
-      } else {
-        l_obj = null;
-      }
-    } else {
-      l_obj=l_str;
-    }
-  } catch(e) {
-    apex.debug.error('json-item-display: schema', e, p_str);
-    l_obj = {};
-  }
-  console.log('<<convert', l_obj);
-  return (l_obj);
-} 
-    /*
-     * initialize the JSON-Item-Display plugin, call form inside PL/SQL when plugin is initialized
+     * initialize the JSON-Item-Display plugin when used as a page-item, call from inside PL/SQL when plugin is initialized
      */
 function initJsonItemDisplay(pItemName, pOptions){
   console.info('>>initJsonItemDisplay', pItemName,  pOptions);
-  // pOptions.schema is quotted
-//  pOptions.schema =convertJsonParameter(pOptions.schema||'{}');
-//  pOptions.schema.apex = pOptions.schema.apex ||{};
-//  console.log('pOptions', pOptions);
   let l_value = apex.item(pOptions.dataitem).getValue();
-//  l_value = JSON.parse(l_value);
+  let l_schema = pOptions.schema;
 
-  l_value = (formatValue(pOptions.schema, pOptions.list, pOptions.format, l_value))
+  if(pOptions.schemaitem){ // the format schema is stored in a page item
+    l_schema = apex.item(pOptions.schemaitem).getValue();
+  }
+
+  l_value = (formatValue(l_schema, pOptions.json, pOptions.list, l_value))
 
   let l_html = apex.util.applyTemplate(`
 <div class="t-Form-itemWrapper">
@@ -108,12 +85,16 @@ function initJsonItemDisplay(pItemName, pOptions){
     item_type: "json_item_display",
     displayValueFor:function(value) {
       console.log('DISPLAY:', value);
-      return formatValue(pOptions.schema, pOptions.list, pOptions.format, '"' + (value ||'{}') + '"');
+      return formatValue(pOptions.schema, pOptions.json, pOptions.list, '"' + (value ||'{}') + '"');
     }
   });
   console.log('<<initJsonItemDisplay');
 }
 
+
+    /*
+     * initialize the JSON-Item-Display plugin when used as aN INTERACTIVE-GRID-COLUMN, call from inside PL/SQL when plugin is initialized
+     */
 function initJsonItemDisplayGrid(pColumnName, pOptions){
   console.info('>>initJsonItemDisplayGrid', pColumnName, pOptions);
 
@@ -159,7 +140,7 @@ function initJsonItemDisplayGrid(pColumnName, pOptions){
             l_display = model.getValue(record, pOptions.schemaitem);
           }
           let l_json    = model.getValue(record, pOptions.dataitem);
-          let l_value   = formatValue(l_display, pOptions.list, pOptions.format, l_json);
+          let l_value   = formatValue(l_display, pOptions.json, pOptions.list, l_json);
           return(l_value);
         };
 
