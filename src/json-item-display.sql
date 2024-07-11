@@ -72,6 +72,7 @@ PROCEDURE render_json_item_display(
   l_schema        p_item.attribute_04%TYPE := p_item.attribute_04;                            -- The fixed JSON-schema
   l_query         p_item.attribute_05%TYPE := p_item.attribute_05;                            -- The SQL-query to retrieve the JSON-schema
   l_json          p_item.attribute_08%TYPE := p_item.attribute_08;                            -- 'Y' when format is included in a JSON-schema
+  l_escape        p_item.attribute_09%TYPE := p_item.attribute_09;                            -- 0 = noe escaping, 1 = escape values, 2 = espace values + format
 BEGIN
   BEGIN
     APEX_PLUGIN_UTIL.DEBUG_PAGE_ITEM(p_plugin, p_item, p_param.value, p_param.is_readonly, p_param.is_printer_friendly);
@@ -111,7 +112,7 @@ BEGIN
           apex_javascript.add_attribute('dataitem',   l_data_column) || 
           apex_javascript.add_attribute('list',       l_list) || 
           apex_javascript.add_attribute('json',       UPPER(NVL(l_json,'Y'))='Y') || 
-          apex_javascript.add_attribute('escape',     p_item.escape_output)||
+          apex_javascript.add_attribute('escape',     l_escape)||
           apex_javascript.add_attribute('schema',     l_schema, false,false) ||
       '}'||
     ');'

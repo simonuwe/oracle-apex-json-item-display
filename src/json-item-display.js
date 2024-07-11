@@ -6,6 +6,9 @@
 
 "use strict";
 
+const C_ESCAPE_VALUES = 1;
+const C_ESCAPE_FORMAT = 2;
+
 /*
  * use the format for list pList for formatting the data in pValue
  * the format contains one or more JSON-path enclosed by #
@@ -27,7 +30,7 @@ function formatValue(pDisplay, pJSON, pEscape, pList, pValue){
     l_format = pDisplay;
   }
 
-  if(pEscape){  // escape format only when configured
+  if(pEscape & C_ESCAPE_FORMAT ){  // escape format only when configured
     l_format = apex.util.escapeHTML(l_format);
   }
 
@@ -44,7 +47,10 @@ function formatValue(pDisplay, pJSON, pEscape, pList, pValue){
       let l_jsonpath = l_field.replaceAll('#', '');
       let l_value = JSONPath.JSONPath({path: l_jsonpath, json: pValue}) || [];
       let l_val = apex.util.escapeHTML(l_value[0]);  // always escape data
-      l_result = l_result.replaceAll(l_field, l_val?l_val:'-');
+      if(pEscape & C_ESCAPE_VALUES ){  // escape values or values+format
+        l_val = apex.util.escapeHTML(l_val);
+      }
+          l_result = l_result.replaceAll(l_field, l_val?l_val:'-');
     }
   } else {
     apex.debug.error('JSON-item-display: configuration error: expected JSONs objects got schema-item:', (typeof pDisplay).toUpperCase(), 'data-item:', (typeof pValue).toUpperCase());
