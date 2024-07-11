@@ -11,7 +11,7 @@
  * the format contains one or more JSON-path enclosed by #
  * Example "#$.lastname#, #$.firstname#" returns "Simon, Uwe"
 */
-function formatValue(pDisplay, pJSON, pList, pValue){
+function formatValue(pDisplay, pJSON, pEscape, pList, pValue){
   console.log('>>formatValue', pDisplay, pJSON, pList, pValue);
   pValue   = pValue?JSON.parse(pValue):null;
 
@@ -27,6 +27,10 @@ function formatValue(pDisplay, pJSON, pList, pValue){
     l_format = pDisplay;
   }
 
+  if(pEscape){  // escape format only when configured
+    l_format = apex.util.escapeHTML(l_format);
+  }
+
   console.log('formatValue:', l_format);
 
   let l_result = null;
@@ -39,12 +43,14 @@ function formatValue(pDisplay, pJSON, pList, pValue){
     for(const l_field of l_fields){
       let l_jsonpath = l_field.replaceAll('#', '');
       let l_value = JSONPath.JSONPath({path: l_jsonpath, json: pValue}) || [];
-      l_result = l_result.replaceAll(l_field, l_value[0]?l_value[0]:'-');
+      let l_val = apex.util.escapeHTML(l_value[0]);  // always escape data
+      l_result = l_result.replaceAll(l_field, l_val?l_val:'-');
     }
   } else {
     apex.debug.error('JSON-item-display: configuration error: expected JSONs objects got schema-item:', (typeof pDisplay).toUpperCase(), 'data-item:', (typeof pValue).toUpperCase());
     l_result = 'configuration error';
   }
+
   console.log('<<formatValue', l_result);
   return (l_result);
 }
@@ -62,7 +68,7 @@ function initJsonItemDisplay(pItemName, pOptions){
     l_schema = apex.item(pOptions.schemaitem).getValue();
   }
 
-  l_value = (formatValue(l_schema, pOptions.json, pOptions.list, l_value))
+  l_value = (formatValue(l_schema, pOptions.json, pOptions.escape, pOptions.list, l_value))
 
   let l_html = apex.util.applyTemplate(`
 <div class="t-Form-itemWrapper">
@@ -85,7 +91,7 @@ function initJsonItemDisplay(pItemName, pOptions){
     item_type: "json_item_display",
     displayValueFor:function(value) {
       console.log('DISPLAY:', value);
-      return formatValue(pOptions.schema, pOptions.json, pOptions.list, '"' + (value ||'{}') + '"');
+      return formatValue(pOptions.schema, pOptions.json, pOptions.escape, pOptions.list, '"' + (value ||'{}') + '"');
     }
   });
   console.log('<<initJsonItemDisplay');
@@ -140,7 +146,7 @@ function initJsonItemDisplayGrid(pColumnName, pOptions){
             l_display = model.getValue(record, pOptions.schemaitem);
           }
           let l_json    = model.getValue(record, pOptions.dataitem);
-          let l_value   = formatValue(l_display, pOptions.json, pOptions.list, l_json);
+          let l_value   = formatValue(l_display, pOptions.json, pOptions.escape, pOptions.list, l_json);
           return(l_value);
         };
 

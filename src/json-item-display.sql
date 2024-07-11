@@ -111,6 +111,7 @@ BEGIN
           apex_javascript.add_attribute('dataitem',   l_data_column) || 
           apex_javascript.add_attribute('list',       l_list) || 
           apex_javascript.add_attribute('json',       UPPER(NVL(l_json,'Y'))='Y') || 
+          apex_javascript.add_attribute('escape',     p_item.escape_output)||
           apex_javascript.add_attribute('schema',     l_schema, false,false) ||
       '}'||
     ');'
