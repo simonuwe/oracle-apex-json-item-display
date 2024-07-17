@@ -28,7 +28,7 @@ prompt APPLICATION 101 - json-region-demo
 -- Application Export:
 --   Application:     101
 --   Name:            json-region-demo
---   Date and Time:   12:32 Thursday July 11, 2024
+--   Date and Time:   15:18 Wednesday July 17, 2024
 --   Exported By:     UWE
 --   Flashback:       0
 --   Export Type:     Component Export
@@ -243,10 +243,10 @@ wwv_flow_api.create_plugin_attribute(
 ,p_is_required=>true
 ,p_default_value=>'default'
 ,p_is_translatable=>false
-,p_depending_on_attribute_id=>wwv_flow_api.id(46381882972659459)
+,p_depending_on_attribute_id=>wwv_flow_api.id(29377360139592499)
 ,p_depending_on_has_to_exist=>true
-,p_depending_on_condition_type=>'NOT_EQUALS'
-,p_depending_on_expression=>'3'
+,p_depending_on_condition_type=>'EQUALS'
+,p_depending_on_expression=>'Y'
 ,p_help_text=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'The name of the list the format is for.',
 'The JSON-schema contains one or more formats for using in different lists, like "default" and "detail".'))
@@ -385,6 +385,7 @@ wwv_flow_api.create_plugin_attribute(
 ,p_default_value=>'3'
 ,p_is_translatable=>false
 ,p_lov_type=>'STATIC'
+,p_help_text=>'Escape the output for values only or for values and format.'
 );
 wwv_flow_api.create_plugin_attr_value(
  p_id=>wwv_flow_api.id(19739023715068356)
