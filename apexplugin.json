@@ -1,6 +1,6 @@
 {
     "name" :        "JSON-item-display",
-    "version" :     "0.3.0",
+    "version" :     "0.4.0",
     "description" : "Displays easy readable formatted JSON-data in interactive grids or on a page. The format for the JSON is based on a description in a JSON-schema. The schema can vary from row to row depending on the JSON-schema. The JSON-attributes can be addressed via JSON-path like #$.address.city#",
     "keywords" :    ["JSON", "JSON-schema", "dynamic column formatting"],
     "homepage" :    "https://github.com/simonuwe/oracle-apex-json-item/",
