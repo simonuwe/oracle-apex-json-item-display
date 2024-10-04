@@ -27,30 +27,29 @@ function formatValue(pDisplay, pJSON, pEscape, pList, pValue){
     pDisplay      = pDisplay.apex.display || {};
     l_format      = pDisplay[pList]||'';    
   } else { // pDisplay contains the format-string
-    l_format = pDisplay;
+    l_format = pDisplay||'';
   }
 
   if(pEscape & C_ESCAPE_FORMAT ){  // escape format only when configured
     l_format = apex.util.escapeHTML(l_format);
   }
 
+  l_format = '' + l_format;  // make sure l_format is a string;
   console.log('formatValue:', l_format);
 
   let l_result = null;
   if(typeof pValue ==='object'){ // a value, so format the value
-    l_format = '' + l_format;  // make sure l_format is a string;
-
     console.log('formatValue: uses format', l_format);
-    l_result  = '' + l_format;
+    l_result  = l_format;
     let l_fields  = l_format.match(/#[^#]+#/g) || [];
     for(const l_field of l_fields){
       let l_jsonpath = l_field.replaceAll('#', '');
       let l_value = JSONPath.JSONPath({path: l_jsonpath, json: pValue}) || [];
-      let l_val = apex.util.escapeHTML(l_value[0]);  // always escape data
-      if(pEscape & C_ESCAPE_VALUES ){  // escape values or values+format
+      let l_val = l_value[0];
+      if(l_val && pEscape & C_ESCAPE_VALUES ){  // escape values or values+format
         l_val = apex.util.escapeHTML(l_val);
       }
-          l_result = l_result.replaceAll(l_field, l_val?l_val:'-');
+      l_result = l_result.replaceAll(l_field, l_val?l_val:'-');
     }
   } else {
     apex.debug.error('JSON-item-display: configuration error: expected JSONs objects got schema-item:', (typeof pDisplay).toUpperCase(), 'data-item:', (typeof pValue).toUpperCase());

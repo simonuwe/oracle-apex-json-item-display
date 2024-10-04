@@ -159,8 +159,11 @@ containing a column **Fomatted Data**
 
 ![config](config-11.png)
 
+To enable the output of HTML-tags in the formatted output, the escaping of special charatoers had to be switched off.
+
+![config](config-12.png)
 
 
 ## Known issues
 - The configuration for a interactive-grid-column contains "SQL-Query" in the Soruce-selection, this setting is ignored.
-- **JSON-item-display-columns do not appear in exports** (csv, pdf, ...) of the interactive-grid. The reason is, that the data for the columns in an export must be returned by a generated SQL-query. But the JSON-item-display-column is a column calculated in Javascript (in the model with a **calcValue**-function depending on the dasta and the schema). This is the only way to access columns in the same row (here data and JSON-schema).
+- **JSON-item-display-columns do not appear in exports** (csv, pdf, ...) of the interactive-grid. The reason is, that the data for the columns in an export must be returned by a generated SQL-query. But the JSON-item-display-column is a column calculated in Javascript (in the model with a **calcValue**-function depending on the data and the schema). This is the only way to access columns in the same row (here data and JSON-schema).
