@@ -1,6 +1,14 @@
+/* JSON-item-display 0.4.5
+ * (c) Uwe Simon 2023, 2025
+ * Apache License Version 2.0
+ *
+ * TODO: Remove conditional compile when min supported version is APEX >=24.2
+ *
+*/
+
 /*
  * Read the JSON-schema from database. The query must return a single row and the first column must be the JSON-schema.
- */ 
+ */
 FUNCTION readschema(pQuery IN VARCHAR2) 
   RETURN CLOB IS 
   l_json                CLOB;
@@ -66,14 +74,32 @@ PROCEDURE render_json_item_display(
   l_queryitems    varchar2(4000);
   l_delimiter     varchar2(1);
   l_function      VARCHAR2(100);
-  l_data_column   p_item.attribute_01%TYPE := p_item.attribute_01;   -- the data column
+  l_data_column   p_item.attribute_01%TYPE := p_item.attribute_01;                            -- the data column
   l_list          p_item.attribute_02%TYPE := NVL(p_item.attribute_02,'default');             -- The name of the format used for the list
   l_schema_column p_item.attribute_03%TYPE := p_item.attribute_03;                            -- The column with JSON-schema  
   l_schema        p_item.attribute_04%TYPE := p_item.attribute_04;                            -- The fixed JSON-schema
   l_query         p_item.attribute_05%TYPE := p_item.attribute_05;                            -- The SQL-query to retrieve the JSON-schema
-  l_json          p_item.attribute_08%TYPE := p_item.attribute_08;                            -- 'Y' when format is included in a JSON-schema
+  l_json          BOOLEAN;                            -- 'Y' when format is included in a JSON-schema
   l_escape        p_item.attribute_09%TYPE := p_item.attribute_09;                            -- 0 = noe escaping, 1 = escape values, 2 = espace values + format
 BEGIN
+$IF wwv_flow_api.c_current>=20241130
+$THEN  -- new API for >= APEX_24.2
+  l_data_column   := p_item.attributes.get_varchar2('attribute_01', p_item.attribute_01);
+  l_list          := NVL(p_item.attributes.get_varchar2('attribute_02', p_item.attribute_02),'default');
+  l_schema_column := p_item.attributes.get_varchar2('attribute_03', p_item.attribute_03);
+  l_schema        := p_item.attributes.get_varchar2('attribute_04', p_item.attribute_04);
+  l_query         := p_item.attributes.get_varchar2('attribute_05', p_item.attribute_05);
+  l_json          := p_item.attributes.get_boolean('attribute_08', UPPER(NVL(p_item.attribute_08,'Y'))='Y');
+  l_escape        := p_item.attributes.get_varchar2('attribute_09', p_item.attribute_09);
+$ELSE
+  l_data_column   := p_item.attribute_01;
+  l_list          := NVL(p_item.attribute_02,'default');
+  l_schema_column := p_item.attribute_03;
+  l_schema        := p_item.attribute_04;
+  l_query         := p_item.attribute_05;
+  l_json          := UPPER(NVL(p_item.attribute_08,'Y'))='Y';
+  l_escape        := p_item.attribute_09;
+$END
   BEGIN
     APEX_PLUGIN_UTIL.DEBUG_PAGE_ITEM(p_plugin, p_item, p_param.value, p_param.is_readonly, p_param.is_printer_friendly);
     APEX_DEBUG.INFO('render_json_item_display: %s-%s-%s: %s', p_item.name, l_schema_column, l_data_column, p_param.value);
@@ -111,7 +137,7 @@ BEGIN
           apex_javascript.add_attribute('schemaitem', l_schema_column) || 
           apex_javascript.add_attribute('dataitem',   l_data_column) || 
           apex_javascript.add_attribute('list',       l_list) || 
-          apex_javascript.add_attribute('json',       UPPER(NVL(l_json,'Y'))='Y') || 
+          apex_javascript.add_attribute('json',       l_json) || 
           apex_javascript.add_attribute('escape',     l_escape)||
           apex_javascript.add_attribute('schema',     l_schema, false,false) ||
       '}'||
