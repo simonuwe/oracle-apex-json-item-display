@@ -31,7 +31,7 @@ prompt APPLICATION 100 - json-region-demo
 -- Application Export:
 --   Application:     100
 --   Name:            json-region-demo
---   Date and Time:   16:22 Thursday April 3, 2025
+--   Date and Time:   08:46 Tuesday April 15, 2025
 --   Exported By:     UWE
 --   Flashback:       0
 --   Export Type:     Component Export
@@ -61,11 +61,15 @@ wwv_flow_api.create_plugin(
 '#PLUGIN_FILES#index-browser-umd.js'))
 ,p_css_file_urls=>'#PLUGIN_FILES#json-item-display.css'
 ,p_plsql_code=>wwv_flow_string.join(wwv_flow_t_varchar2(
-'/* JSON-item-display 0.4.5',
+'/*',
+' * JSON-item-display 0.4.5',
 ' * (c) Uwe Simon 2023, 2025',
 ' * Apache License Version 2.0',
 ' *',
-' * TODO: Remove conditional compile when min supported version is APEX >=24.2',
+' * Same source base for API APEX <24.2 and >=24.2, callback API can be changed from "deprecated"',
+' *',
+' * TODO: ',
+' *  Remove conditional compile when min supported version is APEX >=24.2',
 ' *',
 '*/',
 '',
@@ -146,7 +150,7 @@ wwv_flow_api.create_plugin(
 '  l_escape        p_item.attribute_09%TYPE := p_item.attribute_09;                            -- 0 = noe escaping, 1 = escape values, 2 = espace values + format',
 'BEGIN',
 '$IF wwv_flow_api.c_current>=20241130',
-'$THEN  -- new API for >= APEX_24.2',
+'$THEN  -- new API for >= APEX_24.2, defaults can be removed when min supported version is 24.2 ',
 '  l_data_column   := p_item.attributes.get_varchar2(''attribute_01'', p_item.attribute_01);',
 '  l_list          := NVL(p_item.attributes.get_varchar2(''attribute_02'', p_item.attribute_02),''default'');',
 '  l_schema_column := p_item.attributes.get_varchar2(''attribute_03'', p_item.attribute_03);',
@@ -221,7 +225,8 @@ wwv_flow_api.create_plugin(
 '    p_item   in            apex_plugin.t_item,',
 '    p_plugin in            apex_plugin.t_plugin,',
 '    p_param  in            apex_plugin.t_item_ajax_param,',
-'    p_result in out nocopy apex_plugin.t_item_ajax_result ) IS',
+'    p_result in out nocopy apex_plugin.t_item_ajax_result ) ',
+'IS',
 '  l_sqlquery p_item.attribute_04%TYPE :=p_item.attribute_04;  -- the SQLquery entered in page designer is passed in attribute_04;',
 '  l_result   apex_plugin.t_item_ajax_result;',
 '  l_json     VARCHAR2(32000);',
