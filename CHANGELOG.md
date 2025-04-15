@@ -1,3 +1,9 @@
+# rel-0.4.5 2025-04-15
+
+## fixed issues
+
+- #15 APEX-deprecate info: plugin-API change >= APEX_24.2 (enhancement)
+
 # rel.0.4.1 2024-10-4
 
 ## fixed issues
